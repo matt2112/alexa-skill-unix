@@ -1,6 +1,7 @@
 'use strict';
 
 const Alexa = require('alexa-sdk');
+const axios = require('axios');
 
 const handlers = {
     LaunchRequest: function () {
@@ -8,9 +9,16 @@ const handlers = {
         this.emit('Unix');
     },
     Unix: function () {
-        const time = 123;
-        const speechOutput = `This is the unix time: ${time}.`;
-        this.emit(':tellWithCard', speechOutput, 'Unix time', time);    
+        axios.get('https://mdl-timestamp.herokuapp.com/December%2010,%202016')
+            .then((response) => {
+                const time = response.data.unix;
+                const speechOutput = `This is the unix time: ${time}.`;
+                this.emit(':tellWithCard', speechOutput, 'Unix time', time);
+            })
+            .catch((error) => {
+                console.log(error);
+                this.emit(':tell', 'There was an error from axios.');
+            });
     },
     Natural: function () {
         const date = 'a b c';
