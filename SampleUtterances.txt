@@ -1,3 +1,9 @@
-Unix get unix time
+Unix get unix time for {Date}
+Unix get the unix time for {Date}
+Unix convert {Date} to unix time
+Unix convert {Date} to the unix time
 
-Natural get natural date
+Natural get natural date for {Time}
+Natural get the natural date for {Time}
+Natural convert {Time} to natural date
+Natural convert {Time} to the natural date
