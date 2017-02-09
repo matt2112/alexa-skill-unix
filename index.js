@@ -28,7 +28,7 @@ const handlers = {
         const dateString = `${month} ${day}, ${year}`;
         console.log(`The datestring has been parsed to ${dateString}`);
 
-        axios.get(`https://mdl-timestamp.herokuapp.com/${dateString}`)
+        axios.get(`http://timestamp-microservice-dev.eu-west-2.elasticbeanstalk.com/${dateString}`)
             .then((response) => {
                 const time = response.data.unix;
                 const speechOutput = `The unix time for ${dateString} is ${time}.`;
@@ -47,7 +47,7 @@ const handlers = {
             time = 0;
         }
 
-        axios.get(`https://mdl-timestamp.herokuapp.com/${time}`)
+        axios.get(`http://timestamp-microservice-dev.eu-west-2.elasticbeanstalk.com/${time}`)
             .then((response) => {
                 const date = response.data.natural;
                 const speechOutput = `The natural date for ${time} seconds is ${date}.`;
