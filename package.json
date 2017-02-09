@@ -1,7 +1,7 @@
 {
   "name": "unix-alexa-skill",
   "version": "1.0.0",
-  "description": "Custom Alexa skill for converting between natural dates and unix time - Say 'Alexa, tell Unix to get unix time'.",
+  "description": "Custom Alexa skill for converting between natural dates and unix time.",
   "main": "index.js",
   "author": "Matt Lewis",
   "license": "ISC",

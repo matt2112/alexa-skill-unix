@@ -1,10 +1,22 @@
 {
   "intents": [
     {
-      "intent": "Unix"
+      "intent": "Unix",
+      "slots": [
+        {
+          "name": "Date",
+          "type": "AMAZON.DATE"
+        }
+      ]
     },
     {
-      "intent": "Natural"
+      "intent": "Natural",
+      "slots": [
+        {
+          "name": "Time",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
     }
   ]
 }

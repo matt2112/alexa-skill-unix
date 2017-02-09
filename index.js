@@ -40,9 +40,23 @@ const handlers = {
             });
     },
     Natural: function () {
-        const date = '10th December, 2016';
-        const speechOutput = `This is the natural date: ${date}.`;
-        this.emit(':tellWithCard', speechOutput, 'Natural date', date);    
+        let time = this.event.request.intent.slots.Time.value;
+        console.log(`The time you requested is ${time}.`);
+        // If undefined, set time to 0 seconds i.e. January 1st, 1970.
+        if (!time) {
+            time = 0;
+        }
+
+        axios.get(`https://mdl-timestamp.herokuapp.com/${time}`)
+            .then((response) => {
+                const date = response.data.natural;
+                const speechOutput = `The natural date for ${time} seconds is ${date}.`;
+                this.emit(':tellWithCard', speechOutput, 'Natural date', date);
+            })
+            .catch((error) => {
+                console.log(error);
+                this.emit(':tell', 'There was an error when attempting to access the timestamp API.');
+            });  
     }
 };
 
