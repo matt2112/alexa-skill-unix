@@ -5,35 +5,7 @@ const index = require('../lambda/index');
 
 const ctx = context();
 
-const testJson = {
-  "session": {
-    "sessionId": "SessionId.16a942ea-b7fe-410c-a998-cf3a3acdefeb",
-    "application": {
-      "applicationId": "amzn1.ask.skill.992e39da-abb5-40ae-b54d-a0550567249e"
-    },
-    "attributes": {},
-    "user": {
-      "userId": "amzn1.ask.account.AH5AQY4HZJQFVCGUPSHMNYNCRZ4THO3ACOCXF3S54IBHTN7MGQU4KUV73YTJCV75V5UIU344BBNLOFP6IDQCSQMU2X6PYWQ7ZITO6VIPUZ2HRJ3THFJWCS5WG4JXI56KTJ5MJIATYD5UTMKHDMTZ6EYDOWMB3LZ2W4CBJSNN3NEYVLFRPWFQZQLNKOJJMDTS3O7E4PBXZFGV4JA"
-    },
-    "new": true
-  },
-  "request": {
-    "type": "IntentRequest",
-    "requestId": "EdwRequestId.3a9602df-f1ba-4b6d-85a1-d48b7eed9f57",
-    "locale": "en-GB",
-    "timestamp": "2017-03-03T12:28:44Z",
-    "intent": {
-      "name": "Unix",
-      "slots": {
-        "Date": {
-          "name": "Date",
-          "value": "2017-03-04"
-        }
-      }
-    }
-  },
-  "version": "1.0"
-};
+const testJson = require('./requests/unix-1.json');
 
 describe('Testing the Unix intent', () => {
 
@@ -45,7 +17,6 @@ describe('Testing the Unix intent', () => {
     ctx.Promise
       .then((response) => {
         speechResponse = response;
-        console.log(speechResponse);
         done();
       })
       .catch((error) => {
@@ -54,9 +25,9 @@ describe('Testing the Unix intent', () => {
       });
   });
 
-  describe('Is the response structurally correct', () => {
-    it('should not have errored', () => {
-      expect(speechError).to.be.null;
-    });
+  describe('Testing for March 4, 2017', () => {
+    it('should not have errored', () => expect(speechError).to.be.null);
+    it('should equal 1488585600', () => expect(speechResponse.response.outputSpeech.ssml)
+                                          .to.equal('<speak> The unix time for March 4, 2017 is 1488585600. </speak>'));
   });
 });
