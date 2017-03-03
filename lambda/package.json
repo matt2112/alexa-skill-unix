@@ -7,6 +7,7 @@
   "license": "ISC",
   "dependencies": {
     "alexa-sdk": "^1.0.6",
-    "axios": "^0.15.3"
+    "axios": "^0.15.3",
+    "opearlo-analytics": "^0.1.9"
   }
 }

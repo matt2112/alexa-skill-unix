@@ -2,6 +2,7 @@
 
 const Alexa = require('alexa-sdk');
 const axios = require('axios');
+const OpearloAnalytics = require('opearlo-analytics');
 
 const REPROMPT = 'What would you like to do?';
 
@@ -31,15 +32,19 @@ const handlers = {
     console.log(`The datestring has been parsed to ${dateString}`);
 
     axios.get(`http://timestamp-microservice-dev.eu-west-2.elasticbeanstalk.com/${dateString}`)
-            .then((response) => {
-              const time = response.data.unix;
-              const speechOutput = `The unix time for ${dateString} is ${time}.`;
-              this.emit(':tellWithCard', speechOutput, 'Unix time', time);
-            })
-            .catch((error) => {
-              console.log(error);
-              this.emit(':tell', 'There was an error when attempting to access the timestamp API.');
-            });
+      .then((response) => {
+        const time = response.data.unix;
+        const speechOutput = `The unix time for ${dateString} is ${time}.`;
+        OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
+          this.emit(':tellWithCard', speechOutput, 'Unix time', time);
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
+          this.emit(':tell', 'There was an error when attempting to access the timestamp API.');
+        });
+      });
   },
 
   'Natural': function () {
@@ -51,19 +56,25 @@ const handlers = {
     }
 
     axios.get(`http://timestamp-microservice-dev.eu-west-2.elasticbeanstalk.com/${time}`)
-            .then((response) => {
-              const date = response.data.natural;
-              const speechOutput = `The natural date for ${time} seconds is ${date}.`;
-              this.emit(':tellWithCard', speechOutput, 'Natural date', date);
-            })
-            .catch((error) => {
-              console.log(error);
-              this.emit(':tell', 'There was an error when attempting to access the timestamp API.');
-            });
+      .then((response) => {
+        const date = response.data.natural;
+        const speechOutput = `The natural date for ${time} seconds is ${date}.`;
+        OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
+          this.emit(':tellWithCard', speechOutput, 'Natural date', date);
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
+          this.emit(':tell', 'There was an error when attempting to access the timestamp API.');
+        });
+      });
   },
 
   'AMAZON.CancelIntent': function () {
-    this.emit(':tell', 'Goodbye!');
+    OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
+      this.emit(':tell', 'Goodbye!');
+    });
   },
 
   'AMAZON.HelpIntent': function () {
@@ -71,7 +82,9 @@ const handlers = {
   },
 
   'AMAZON.StopIntent': function () {
-    this.emit(':tell', 'Goodbye!');
+    OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
+      this.emit(':tell', 'Goodbye!');
+    });
   },
 
   'Unhandled': function () {
@@ -83,5 +96,22 @@ exports.handler = (event, context) => {
   const alexa = Alexa.handler(event, context);
   alexa.appId = process.env.APP_ID || '';
   alexa.registerHandlers(handlers);
+
+  if (event.session.new) {
+    console.log('initializing analytics');
+    const ID = process.env.OPEARLO_USER_ID || '';
+    OpearloAnalytics.initializeAnalytics(ID, 'unix-time', event.session);
+    console.log(`activated with ${ID}`);
+  }
+
+  if (event.request.type === 'LaunchRequest') {
+    console.log('Register Voice Event');
+    OpearloAnalytics.registerVoiceEvent(event.session.user.userId, 'LaunchRequest');
+  }
+
+  if (event.request.type === 'IntentRequest') {
+    OpearloAnalytics.registerVoiceEvent(event.session.user.userId, 'IntentRequest', event.request.intent);
+  }
+
   alexa.execute();
 };
