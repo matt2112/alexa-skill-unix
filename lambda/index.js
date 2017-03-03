@@ -4,13 +4,14 @@ const Alexa = require('alexa-sdk');
 const axios = require('axios');
 const OpearloAnalytics = require('opearlo-analytics');
 
-const REPROMPT = 'What would you like to do?';
+const REPROMPT = 'What would you like me to do?';
 
 const handlers = {
 
   'LaunchRequest': function () {
-    // If no intent given, will call Unix function by default.
-    this.emit(':ask', 'Welcome to Unix Time.', REPROMPT);
+    // Alexa stresses 'Time' too much when followed by 'Unix', so use IPA throughout to remove stress.
+    this.emit(':ask', `Welcome to Unix <phoneme alphabet="ipa" ph="taɪm">Time</phoneme>.
+                        Ask me to convert between the Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> and the natural date.`, REPROMPT);
   },
 
   'Unix': function () {
@@ -78,7 +79,10 @@ const handlers = {
   },
 
   'AMAZON.HelpIntent': function () {
-    this.emit(':ask', 'Ask me to convert between unix time and the natural date according to the Gregorian calendar.', REPROMPT);
+    this.emit(':ask', `Ask me to convert between the Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> and the natural date.
+                        The Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> is defined as the number of seconds that have elapsed since Thursday 1st January 1970.
+                        The natural date is the date according to the Gregorian calendar, internationally the most widely used
+                        civil calendar.`, REPROMPT);
   },
 
   'AMAZON.StopIntent': function () {
@@ -98,14 +102,13 @@ exports.handler = (event, context) => {
   alexa.registerHandlers(handlers);
 
   if (event.session.new) {
-    console.log('initializing analytics');
+    console.log('Initializing Opearlo Analytics');
     const ID = process.env.OPEARLO_USER_ID || '';
     OpearloAnalytics.initializeAnalytics(ID, 'unix-time', event.session);
-    console.log(`activated with ${ID}`);
+    console.log(`Initialized with user ID: ${ID}`);
   }
 
   if (event.request.type === 'LaunchRequest') {
-    console.log('Register Voice Event');
     OpearloAnalytics.registerVoiceEvent(event.session.user.userId, 'LaunchRequest');
   }
 
