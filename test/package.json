@@ -1,0 +1,20 @@
+{
+  "name": "unix-alexa-skill-tests",
+  "version": "1.0.0",
+  "description": "Tests",
+  "main": "test.js",
+  "author": "Matt Lewis",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "aws-lambda-mock-context": "^3.0.1",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  },
+  "eslintConfig": {
+    "env": {
+        "node": true,
+        "mocha": true
+    }
+  }
+}
