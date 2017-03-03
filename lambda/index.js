@@ -10,16 +10,18 @@ const handlers = {
 
   'LaunchRequest': function () {
     // Alexa stresses 'Time' too much when followed by 'Unix', so use IPA throughout to remove stress.
-    this.emit(':ask', `Welcome to Unix <phoneme alphabet="ipa" ph="taɪm">Time</phoneme>.
-                        Ask me to convert between the Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> and the natural date.`, REPROMPT);
+    // Also puts a pause before 'date' when followed by 'language'.
+    this.emit(':ask', `Welcome to Unix <phoneme alphabet="ipa" ph="taɪm">Time</phoneme>. Ask me to convert between the
+              Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> and the natural language <phoneme alphabet="ipa" ph="deɪt">deɪt</phoneme>.`,
+              REPROMPT);
   },
 
   'Unix': function () {
     const dateSlot = this.event.request.intent.slots.Date.value;
-    let date = new Date(dateSlot);
-    // If no date given or not able to parse, then use today's date as default.
+    const date = new Date(dateSlot);
+    // If no date given or not able to parse, then ask the user to try again.
     if (date.toString() === 'Invalid Date') {
-      date = new Date();
+      this.emit(':ask', 'I didn\'t understand that, please try again.', REPROMPT);
     }
     console.log(`The date you requested is ${date}`);
 
@@ -35,7 +37,7 @@ const handlers = {
     axios.get(`http://timestamp-microservice-dev.eu-west-2.elasticbeanstalk.com/${dateString}`)
       .then((response) => {
         const time = response.data.unix;
-        const speechOutput = `The unix time for ${dateString} is ${time}.`;
+        const speechOutput = `The Unix time for ${dateString} is ${time}.`;
         OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
           this.emit(':tellWithCard', speechOutput, 'Unix time', time);
         });
@@ -49,19 +51,19 @@ const handlers = {
   },
 
   'Natural': function () {
-    let time = this.event.request.intent.slots.Time.value;
+    const time = this.event.request.intent.slots.Time.value;
     console.log(`The time you requested is ${time}.`);
-    // If undefined, set time to 0 seconds i.e. January 1st, 1970.
-    if (!time) {
-      time = 0;
+    // If no time given or not a number, then ask the user to try again.
+    if (isNaN(parseInt(time, 10))) {
+      this.emit(':ask', 'I didn\'t understand that, please try again.', REPROMPT);
     }
 
     axios.get(`http://timestamp-microservice-dev.eu-west-2.elasticbeanstalk.com/${time}`)
       .then((response) => {
         const date = response.data.natural;
-        const speechOutput = `The natural date for ${time} seconds is ${date}.`;
+        const speechOutput = `The natural language date for ${time} seconds is ${date}.`;
         OpearloAnalytics.recordAnalytics(this.event.session.user.userId, process.env.OPEARLO_API_KEY, () => {
-          this.emit(':tellWithCard', speechOutput, 'Natural date', date);
+          this.emit(':tellWithCard', speechOutput, 'Natural language date', date);
         });
       })
       .catch((error) => {
@@ -79,10 +81,9 @@ const handlers = {
   },
 
   'AMAZON.HelpIntent': function () {
-    this.emit(':ask', `Ask me to convert between the Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> and the natural date.
-                        The Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> is defined as the number of seconds that have elapsed since Thursday 1st January 1970.
-                        The natural date is the date according to the Gregorian calendar, internationally the most widely used
-                        civil calendar.`, REPROMPT);
+    this.emit(':ask', `Ask me to convert between the Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme> and the natural
+                      language <phoneme alphabet="ipa" ph="deɪt">deɪt</phoneme>. The Unix <phoneme alphabet="ipa" ph="taɪm">time</phoneme>
+                      is defined as the number of seconds that have elapsed since Thursday 1st January 1970.`, REPROMPT);
   },
 
   'AMAZON.StopIntent': function () {
